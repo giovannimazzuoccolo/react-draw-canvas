@@ -9,32 +9,30 @@ const App = () => {
 
   const [arrow, drawArrowStart] = useState(false);
   const [pen, drawPenStart] = useState(false);
-  const [startPos, setStartPos] = useState({ x: 0, y: 0, endX: 0, endY: 0 });
+  const [startPos, setPos] = useState({ x: 0, y: 0 });
   const [isDrawing, startDraw] = useState(false);
 
   const drawArrowSelected = value => {
     drawArrowStart(value);
   };
 
-  const drawPenHook = () => {
-    drawPenStart(true);
+  const drawPenHook = value => {
+    drawPenStart(value);
   };
 
   const changeStartDraw = (e, value) => {
     startDraw(value);
 
     if (value && arrow) {
-      setStartPos({
+      setPos({
         x: e.pageX - canvasRef.current.offsetLeft,
-        y: e.pageY - canvasRef.current.offsetTop,
+        y: e.pageY - canvasRef.current.offsetTop
       });
     }
 
-
     if (!value) {
-      drawPenStart(false);
-      if(arrow.x) {
-        
+      if (arrow.x > 0) {
+        drawArrowStart(true);
       }
       drawArrowStart(false);
     }
@@ -46,11 +44,9 @@ const App = () => {
     ctx.drawImage(img, 0, 0);
   }, []);
 
-
-
   /**
    * This is the drawing
-   * @param {event} e 
+   * @param {event} e
    */
   const handleDrawing = e => {
     if (!isDrawing) {
@@ -65,8 +61,9 @@ const App = () => {
     }
 
     if (arrow) {
-      setStartPos({ endX: x, endY: y});
-      canvasArrow(ctx, "#FF5600", startPos.x, startPos.y, x, y);
+      console.log("arrow is starting");
+      const endPos = { x, y };
+      canvasArrow(ctx, startPos, endPos, 3);
     }
   };
 
@@ -76,6 +73,8 @@ const App = () => {
     ctx.clearRect(0, 0, ctx.width, ctx.height);
     ctx.drawImage(img, 0, 0);
   };
+
+  //instructions: https://jsfiddle.net/richardcwc/cvem3wuv/
 
   return (
     <React.Fragment>
@@ -100,9 +99,7 @@ const App = () => {
           </button>
         </li>
         <li>
-          <button onClick={() => drawPenHook(true)} disabled={pen}>
-            Pen
-          </button>
+          <button onClick={() => drawPenHook(!pen)}>{pen && "End "} Pen</button>
         </li>
         <li>
           <button onClick={() => clearImage()}>Clear</button>
