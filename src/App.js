@@ -63,7 +63,16 @@ const App = () => {
     if (arrow) {
       console.log("arrow is starting");
       const endPos = { x, y };
-      canvasArrow(ctx, startPos, endPos, 3);
+      //canvasArrow(ctx, startPos, endPos, 3);
+
+      ctx.beginPath();
+      ctx.moveTo(startPos.x, startPos.y);
+      ctx.lineTo(endPos.x, endPos.y);
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 10;
+      ctx.lineJoin = ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.closePath();
     }
   };
 
@@ -74,7 +83,7 @@ const App = () => {
     ctx.drawImage(img, 0, 0);
   };
 
-  //instructions: https://jsfiddle.net/richardcwc/cvem3wuv/
+  //instructions: http://jsfiddle.net/m1erickson/H7vRw/
 
   return (
     <React.Fragment>
