@@ -11,6 +11,7 @@ const App = () => {
   const [pen, drawPenStart] = useState(false);
   const [startPos, setPos] = useState({ x: 0, y: 0 });
   const [isDrawing, startDraw] = useState(false);
+  const [storedDrawings, storeDraw] = useState([]);
 
   const drawArrowSelected = value => {
     drawArrowStart(value);
