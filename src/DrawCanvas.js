@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 
-const DrawCanvas = ({ image }) => {
+const DrawCanvas = ({ image, arrow, pen, clear }) => {
   //refs
   let rCanvasRef = useRef();
   let rImageRef = useRef();
@@ -58,6 +58,7 @@ const DrawCanvas = ({ image }) => {
     ctx.drawImage(img, 0, 0);
   }, []);
 
+  //TODO add buttons
   return (
     <>
       <canvas
