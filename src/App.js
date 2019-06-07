@@ -1,42 +1,28 @@
 import React, { useRef, useEffect, useState } from "react";
 import "./App.css";
-import canvasArrow from "./primitives/arrows";
-import drawPen from "./primitives/pen";
+//import drawPen from "./primitives/pen";
 
 const App = () => {
   let canvasRef = useRef();
   let imageRef = useRef();
 
-  const [arrow, drawArrowStart] = useState(false);
   const [pen, drawPenStart] = useState(false);
   const [startPos, setPos] = useState({ x: 0, y: 0 });
   const [isDrawing, startDraw] = useState(false);
-  const [storedDrawings, storeDraw] = useState([]);
 
-  const drawArrowSelected = value => {
-    drawArrowStart(value);
-  };
 
-  const drawPenHook = value => {
+  const drawPenHook = (value) => {
     drawPenStart(value);
+    
+   
   };
 
   const changeStartDraw = (e, value) => {
+    const x = e.pageX - canvasRef.current.offsetLeft;
+    const y = e.pageY - canvasRef.current.offsetTop;
+
+    setPos({ x, y });
     startDraw(value);
-
-    if (value && arrow) {
-      setPos({
-        x: e.pageX - canvasRef.current.offsetLeft,
-        y: e.pageY - canvasRef.current.offsetTop
-      });
-    }
-
-    if (!value) {
-      if (arrow.x > 0) {
-        drawArrowStart(true);
-      }
-      drawArrowStart(false);
-    }
   };
 
   useEffect(() => {
@@ -57,24 +43,16 @@ const App = () => {
     const x = e.pageX - canvasRef.current.offsetLeft;
     const y = e.pageY - canvasRef.current.offsetTop;
 
-    if (pen) {
-      drawPen(ctx, "#FF5600", x, y);
-    }
+    ctx.beginPath();
+    ctx.lineCap = "round";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#FF5600";
+    ctx.moveTo(startPos.x, startPos.y);
+    setPos({ x, y });
+    ctx.lineTo(x,y);
+    ctx.closePath();
+    ctx.stroke();
 
-    if (arrow) {
-      console.log("arrow is starting");
-      const endPos = { x, y };
-      //canvasArrow(ctx, startPos, endPos, 3);
-
-      ctx.beginPath();
-      ctx.moveTo(startPos.x, startPos.y);
-      ctx.lineTo(endPos.x, endPos.y);
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 10;
-      ctx.lineJoin = ctx.lineCap = 'round';
-      ctx.stroke();
-      ctx.closePath();
-    }
   };
 
   const clearImage = () => {
@@ -103,11 +81,6 @@ const App = () => {
         className="hidden"
       />
       <ul className="funcList">
-        <li>
-          <button onClick={drawArrowSelected} disabled={arrow}>
-            Arrow
-          </button>
-        </li>
         <li>
           <button onClick={() => drawPenHook(!pen)}>{pen && "End "} Pen</button>
         </li>

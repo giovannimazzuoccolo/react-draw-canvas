@@ -29,7 +29,6 @@ const DrawCanvas = ({ image, arrow, pen, clear }) => {
   }
 
   function fActionMove(e) {
-    console.log('moving Call');
     e.preventDefault();
     e.stopPropagation();
 
@@ -48,11 +47,10 @@ const DrawCanvas = ({ image, arrow, pen, clear }) => {
     ctx.beginPath();
     ctx.moveTo(startingPoint.startX, startingPoint.startY);
     ctx.lineTo(mouseX, mouseY);
-    ctx.stroke();
+    //ctx.stroke();
   }
 
   function fActionUp(e) {
-    console.log('up Call');
     e.preventDefault();
     e.stopPropagation();
 
