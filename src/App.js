@@ -6,17 +6,22 @@ const App = () => {
   let canvasRef = useRef();
   let imageRef = useRef();
 
-  const [pen, drawPenStart] = useState(false);
-  const [arrow, drawArrows] = useState(false);
+  const [tool, dispatch] = useReducer(selectTool, { tool: null });
+
+  function selectTool(state, action) {
+    switch(action.type) {
+      case 'pen'  : return { tool: 'pen'};
+      case 'arrow': return { tool: 'arrow'};
+      default: return { tool: null }
+    }
+  }
+
   const [startPos, setPos] = useState({ x: 0, y: 0 });
   const [isDrawing, startDraw] = useState(false);
 
-  const drawPenHook = value => {
-    drawPenStart(value);
-  };
-
   const changeStartDraw = (e, value) => {
-    if (pen) {
+    console.log('tool', tool);
+    if (tool.tool) {
       const x = e.pageX - canvasRef.current.offsetLeft;
       const y = e.pageY - canvasRef.current.offsetTop;
 
@@ -39,6 +44,7 @@ const App = () => {
     if (!isDrawing) {
       return;
     }
+
     const ctx = canvasRef.current.getContext("2d");
     const x = e.pageX - canvasRef.current.offsetLeft;
     const y = e.pageY - canvasRef.current.offsetTop;
@@ -72,6 +78,9 @@ const App = () => {
         onMouseMove={handleDrawing}
         onMouseDown={e => changeStartDraw(e, true)}
         onMouseUp={e => changeStartDraw(e, false)}
+        onTouchMove={handleDrawing}
+        onTouchStart={e => changeStartDraw(e, true)}
+        onTouchEnd={e => changeStartDraw(e, false)}
       />
       <img
         src="https://indebuurt.nl/delft/wp-content/uploads/2019/03/sebastiaansbrug-jaap-huisman-3.jpg"
@@ -81,10 +90,10 @@ const App = () => {
       />
       <ul className="funcList">
         <li>
-          <button onClick={() => drawPenHook(!pen)}>{pen && "End "} Pen</button>
+          <button onClick={() => dispatch({ type: 'pen' })}>{ tool === 'pen' && "End "} Pen</button>
         </li>
         <li>
-          <button onClick={() => drawArrows(!arrow)}>{arrow && "End "} Arrow</button>
+          <button onClick={() => dispatch({ type : 'arrow' })}>{ tool === 'arrow' && "End "} Arrow</button>
         </li>
         <li>
           <button onClick={() => clearImage()}>Clear</button>
