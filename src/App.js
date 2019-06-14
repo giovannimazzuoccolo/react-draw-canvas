@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useReducer } from "react";
 import "./App.css";
 //import drawPen from "./primitives/pen";
 
@@ -7,22 +7,22 @@ const App = () => {
   let imageRef = useRef();
 
   const [pen, drawPenStart] = useState(false);
+  const [arrow, drawArrows] = useState(false);
   const [startPos, setPos] = useState({ x: 0, y: 0 });
   const [isDrawing, startDraw] = useState(false);
 
-
-  const drawPenHook = (value) => {
+  const drawPenHook = value => {
     drawPenStart(value);
-    
-   
   };
 
   const changeStartDraw = (e, value) => {
-    const x = e.pageX - canvasRef.current.offsetLeft;
-    const y = e.pageY - canvasRef.current.offsetTop;
+    if (pen) {
+      const x = e.pageX - canvasRef.current.offsetLeft;
+      const y = e.pageY - canvasRef.current.offsetTop;
 
-    setPos({ x, y });
-    startDraw(value);
+      setPos({ x, y });
+      startDraw(value);
+    }
   };
 
   useEffect(() => {
@@ -49,10 +49,9 @@ const App = () => {
     ctx.strokeStyle = "#FF5600";
     ctx.moveTo(startPos.x, startPos.y);
     setPos({ x, y });
-    ctx.lineTo(x,y);
+    ctx.lineTo(x, y);
     ctx.closePath();
     ctx.stroke();
-
   };
 
   const clearImage = () => {
@@ -83,6 +82,9 @@ const App = () => {
       <ul className="funcList">
         <li>
           <button onClick={() => drawPenHook(!pen)}>{pen && "End "} Pen</button>
+        </li>
+        <li>
+          <button onClick={() => drawArrows(!arrow)}>{arrow && "End "} Arrow</button>
         </li>
         <li>
           <button onClick={() => clearImage()}>Clear</button>
