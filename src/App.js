@@ -20,7 +20,6 @@ const App = () => {
   const [isDrawing, startDraw] = useState(false);
 
   const changeStartDraw = (e, value) => {
-    console.log('tool', tool);
     if (tool.tool) {
       const x = e.pageX - canvasRef.current.offsetLeft;
       const y = e.pageY - canvasRef.current.offsetTop;
@@ -90,7 +89,7 @@ const App = () => {
       />
       <ul className="funcList">
         <li>
-          <button onClick={() => dispatch({ type: 'pen' })}>{ tool === 'pen' && "End "} Pen</button>
+          <button onClick={() => dispatch({ type: 'pen' })} data-testid="pen">{ tool === 'pen' && "End "} Pen</button>
         </li>
         <li>
           <button onClick={() => dispatch({ type : 'arrow' })}>{ tool === 'arrow' && "End "} Arrow</button>
