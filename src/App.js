@@ -1,6 +1,9 @@
 import React, { useRef, useEffect, useState, useReducer } from "react";
 import "./App.css";
-//import drawPen from "./primitives/pen";
+import drawPen from "./primitives/pen";
+import drawBlackout from "./primitives/blackout";
+import drawCircle from "./primitives/circle";
+import drawEraser from "./primitives/eraser";
 
 const App = () => {
   let canvasRef = useRef();
@@ -9,10 +12,17 @@ const App = () => {
   const [tool, dispatch] = useReducer(selectTool, { tool: null });
 
   function selectTool(state, action) {
-    switch(action.type) {
-      case 'pen'  : return { tool: 'pen'};
-      case 'arrow': return { tool: 'arrow'};
-      default: return { tool: null }
+    switch (action.type) {
+      case "pen":
+        return { tool: "pen" };
+      case "blackout":
+        return { tool: "blackout" };
+      case "circle":
+        return { tool: "circle" };
+      case "eraser":
+        return { tool: "eraser" };
+      default:
+        return { tool: null };
     }
   }
 
@@ -25,6 +35,15 @@ const App = () => {
       const y = e.pageY - canvasRef.current.offsetTop;
 
       setPos({ x, y });
+
+      if(!value){
+        const ctx = canvasRef.current.getContext("2d");
+        ctx.restore();
+      } else {
+        console.log('start');
+        const ctx = canvasRef.current.getContext("2d");
+        ctx.save();
+      }
       startDraw(value);
     }
   };
@@ -48,15 +67,33 @@ const App = () => {
     const x = e.pageX - canvasRef.current.offsetLeft;
     const y = e.pageY - canvasRef.current.offsetTop;
 
-    ctx.beginPath();
-    ctx.lineCap = "round";
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "#FF5600";
-    ctx.moveTo(startPos.x, startPos.y);
-    setPos({ x, y });
-    ctx.lineTo(x, y);
-    ctx.closePath();
-    ctx.stroke();
+    if (tool.tool === "pen") {
+      setPos({ x, y });
+      drawPen(ctx, startPos.x, startPos.y, x, y, "#FF5600");
+    }
+
+    if (tool.tool === "blackout") {
+      ctx.moveTo(startPos.x, startPos.y);
+      const width = x - startPos.x;
+      const height = y - startPos.y;
+      drawBlackout(ctx, startPos.x, startPos.y, width, height);
+    }
+
+    if (tool.tool === "circle") {
+      //ctx.getContext('2d')
+      ctx.restore();
+      ctx.moveTo(startPos.x, startPos.y);
+      const width = x - startPos.x;
+      const height = y - startPos.y;
+      drawCircle(ctx, startPos.x, startPos.y, width, height);
+    }
+
+    if (tool.tool === "eraser") {
+      ctx.moveTo(startPos.x, startPos.y);
+      const width = x - startPos.x;
+      const height = y - startPos.y;
+      drawEraser(ctx, startPos.x, startPos.y, width, height);
+    }
   };
 
   const clearImage = () => {
@@ -89,10 +126,25 @@ const App = () => {
       />
       <ul className="funcList">
         <li>
-          <button onClick={() => dispatch({ type: 'pen' })} data-testid="pen">{ tool === 'pen' && "End "} Pen</button>
+          <button onClick={() => dispatch({ type: "pen" })} data-testid="pen">
+            {tool.tool === "pen" && "End "} Pen
+          </button>
         </li>
         <li>
-          <button onClick={() => dispatch({ type : 'arrow' })}>{ tool === 'arrow' && "End "} Arrow</button>
+          <button onClick={() => dispatch({ type: "blackout" })} data-testid="blackout">
+            {tool.tool === "blackout" && "End "} Blackout
+          </button>
+        </li>
+        <li>
+          <button onClick={() => dispatch({ type: "circle" })}>
+            {tool.tool === "circle" && "End "} Circle
+          </button>
+        </li>
+        .
+        <li>
+          <button onClick={() => dispatch({ type: "eraser" })}>
+            {tool.tool === "eraser" && "End "} Eraser
+          </button>
         </li>
         <li>
           <button onClick={() => clearImage()}>Clear</button>

@@ -9,7 +9,12 @@ require('jest-canvas-mock');
 
 afterEach(cleanup);
 
-it("has pen button", () => {
+it("it has a pen button", () => {
     const { getByTestId } = render(<App />);
     expect(getByTestId("pen")).toHaveTextContent("Pen");
+});
+
+it("it has a blackout button", () => {
+    const { getByTestId } = render(<App />);
+    expect(getByTestId("blackout")).toHaveTextContent("Blackout");
 });

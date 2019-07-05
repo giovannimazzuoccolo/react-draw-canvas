@@ -1,6 +1,10 @@
-export default function drawPen(ctx, color, x, y) {
+export default function drawPen(ctx, startX, startY, x, y, color) {
     ctx.beginPath();
-    ctx.fillStyle = color;
-    ctx.arc(x, y, 5, 0, 2 * Math.PI);
-    ctx.fill();
+    ctx.lineCap = "round";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = color;
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(x, y);
+    ctx.closePath();
+    ctx.stroke();
 }
