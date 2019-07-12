@@ -1,36 +1,44 @@
-import React, { useRef, ReactNode, useEffect } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 
 interface Props {
   src: string;
 }
 
 const SvgDrawer: React.FC<Props> = ({ src }) => {
-  const imageRef = useRef(null);
+  const [XY, updateDim] = useState([0, 0]);
+  const [lines, updateLine] = useState([{}]);
 
   useEffect(() => {
-    const img = imageRef;
-    console.log(img);
-  }, []);
+    const Img = new Image();
+    Img.onload = () => {
+      console.log("nn", Img.naturalWidth);
+      updateDim([Img.naturalWidth, Img.naturalHeight]);
+    };
+    Img.src = src;
+  }, [src]);
 
-  function Image(src: string): ReactNode {
+  function handleMouseDown(e:any) { //TODO something better than ANY
+    const newLines = [...lines, { x: e.clientX - XY[0], y: e.clientY - XY[1] } ];
+    updateLine(newLines);
+
+  }
+
+  function handleMouseMove(e:any) { //TODO something better than ANY
+
+  }
+
+  function ImageSVG(src: string): ReactNode {
     return <image x="0" y="0" xlinkHref={src} />;
-  };
-/**
- * Create an hidden image for retreive dimentions 
- *
- * @param {string} src
- * @returns {ReactNode}
- */
-function HiddenImage(src: string):ReactNode {
-      return <img src={src} ref={imageRef} alt="demo" style={{ display: 'none' }} />
   }
 
   return (
     <>
-    {HiddenImage(src)}
-    <svg width="100" height="100">
-      {Image(src)}
-    </svg>
+      <svg width={XY[0]} height={XY[1]} onMouseDown={(e) => {handleMouseDown(e)}} onMouseMove={(e) => handleMouseMove(e)}>
+        {ImageSVG(src)}
+        {lines.map((line: any) => (
+            <path d={line} />
+        ))}
+      </svg>
     </>
   );
 };
