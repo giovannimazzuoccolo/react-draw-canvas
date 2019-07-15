@@ -1,30 +1,50 @@
 import React, { ReactNode, useState, useEffect } from "react";
+import Path from "./Path";
 
 interface Props {
   src: string;
 }
 
+interface Line {
+  x: number;
+  y: number;
+}
+
+interface Lines extends Array<Line> {}
+
 const SvgDrawer: React.FC<Props> = ({ src }) => {
   const [XY, updateDim] = useState([0, 0]);
-  const [lines, updateLine] = useState([{}]);
+  const [isDrawing, startDraw] = useState(false);
+  const [lines, updateLine] = useState<Array<Line>>([]);
 
   useEffect(() => {
     const Img = new Image();
     Img.onload = () => {
-      console.log("nn", Img.naturalWidth);
       updateDim([Img.naturalWidth, Img.naturalHeight]);
     };
     Img.src = src;
   }, [src]);
 
-  function handleMouseDown(e:any) { //TODO something better than ANY
-    const newLines = [...lines, { x: e.clientX - XY[0], y: e.clientY - XY[1] } ];
-    updateLine(newLines);
-
+  function handleMouseDown(e: any) {
+    //TODO something better than ANY
+    if (!isDrawing) {
+      startDraw(true);
+    }
   }
 
-  function handleMouseMove(e:any) { //TODO something better than ANY
+  function handleMouseUp(e: any) {
+    if (isDrawing) {
+      startDraw(false);
+    }
+  }
 
+  function handleMouseMove(e: any) {
+    if (isDrawing) {
+      updateLine([...lines, { x: e.clientX, y: e.clientY }]);
+
+      console.log("ll", lines);
+    }
+    //TODO something better than ANY
   }
 
   function ImageSVG(src: string): ReactNode {
@@ -33,11 +53,17 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
 
   return (
     <>
-      <svg width={XY[0]} height={XY[1]} onMouseDown={(e) => {handleMouseDown(e)}} onMouseMove={(e) => handleMouseMove(e)}>
+      <svg
+        width={XY[0]}
+        height={XY[1]}
+        onMouseDown={e => {
+          handleMouseDown(e);
+        }}
+        onMouseMove={e => handleMouseMove(e)}
+        onMouseUp={e => handleMouseUp(e)}
+      >
         {ImageSVG(src)}
-        {lines.map((line: any) => (
-            <path d={line} />
-        ))}
+        {lines && lines.length > 1 && <Path line={lines} />}
       </svg>
     </>
   );
