@@ -6,7 +6,7 @@ const App = () => {
   
   return (
     <React.Fragment>
-      <SvgDrawer src="https://indebuurt.nl/delft/wp-content/uploads/2019/03/sebastiaansbrug-jaap-huisman-3.jpg" />
+      <SvgDrawer src="https://indebuurt.nl/delft/wp-content/uploads/2019/03/sebastiaansbrug-jaap-huisman-3.jpg" pen />
     </React.Fragment>
   );
 };

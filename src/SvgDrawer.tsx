@@ -1,16 +1,19 @@
 import React, { ReactNode, useState, useEffect } from "react";
 import Path from "./Path";
+import Tool from './Tools';
+
 
 interface Props {
   src: string;
+  pen? : boolean;
+  blackout?: boolean;
+  arrow?: boolean
 }
 
 interface Line {
   x: number;
   y: number;
 }
-
-interface Lines extends Array<Line> {}
 
 const SvgDrawer: React.FC<Props> = ({ src }) => {
   const [XY, updateDim] = useState([0, 0]);
@@ -42,7 +45,6 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     if (isDrawing) {
       updateLine([...lines, { x: e.clientX, y: e.clientY }]);
 
-      console.log("ll", lines);
     }
     //TODO something better than ANY
   }
@@ -51,8 +53,11 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     return <image x="0" y="0" xlinkHref={src} />;
   }
 
+  const tool = 'NULL';
+
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: "column" }}>
+     
       <svg
         width={XY[0]}
         height={XY[1]}
@@ -65,7 +70,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         {ImageSVG(src)}
         {lines && lines.length > 1 && <Path line={lines} />}
       </svg>
-    </>
+      <Tool pen blackout arrow selectedTool={tool} />
+    </div>
   );
 };
 
