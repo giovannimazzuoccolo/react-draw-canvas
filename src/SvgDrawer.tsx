@@ -1,13 +1,15 @@
-import React, { ReactNode, useState, useEffect } from "react";
-import Path from "./Path";
-import Tool from './Tools';
-
+import React, { ReactNode, useState, useEffect, useRef } from "react";
+import Path from "./svgElements/Path";
+import Rect from "./svgElements/Rect";
+import Tools from "./Tools";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles, createStyles } from "@material-ui/styles";
 
 interface Props {
   src: string;
-  pen? : boolean;
+  pen?: boolean;
   blackout?: boolean;
-  arrow?: boolean
+  arrow?: boolean;
 }
 
 interface Line {
@@ -15,10 +17,24 @@ interface Line {
   y: number;
 }
 
+type toolList = "PEN" | "BLACKOUT" | "ARROW" | "NULL";
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    root: { display: "flex", flexDirection: "column" }
+  })
+);
+
 const SvgDrawer: React.FC<Props> = ({ src }) => {
   const [XY, updateDim] = useState([0, 0]);
   const [isDrawing, startDraw] = useState(false);
+
   const [lines, updateLine] = useState<Array<Line>>([]);
+  const [rects, updateRects] = useState();
+
+  const [selectedTool, changeTool] = useState<toolList>("NULL");
+
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     const Img = new Image();
@@ -29,9 +45,24 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   }, [src]);
 
   function handleMouseDown(e: any) {
+    let left = 0;
+    let top = 0;
+
+    if (svgRef.current !== null) {
+      left = svgRef.current.getBoundingClientRect().left;
+      top = svgRef.current.getBoundingClientRect().top;
+    }
+
     //TODO something better than ANY
-    if (!isDrawing) {
+    if (!isDrawing && selectedTool !== "NULL") {
       startDraw(true);
+      if (selectedTool === "BLACKOUT" && !rects) {
+        const updates = {
+          startPos: { x: e.clientX - left, y: e.clientY - top },
+          endPos: { w: 0, h: e.clientY - top }
+        };
+        updateRects(updates);
+      }
     }
   }
 
@@ -42,9 +73,24 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   }
 
   function handleMouseMove(e: any) {
-    if (isDrawing) {
-      updateLine([...lines, { x: e.clientX, y: e.clientY }]);
+    let left = 0;
+    let top = 0;
 
+    if (svgRef.current !== null) {
+      left = svgRef.current.getBoundingClientRect().left;
+      top = svgRef.current.getBoundingClientRect().top;
+    }
+
+    if (isDrawing && selectedTool === "PEN") {
+      updateLine([...lines, { x: e.clientX - left, y: e.clientY - top }]);
+    }
+
+    if (isDrawing && selectedTool === "BLACKOUT") {
+      const updates = {
+        startPos: { x: rects.startPos.w, y: rects.startPos.y },
+        endPos: { w: e.clientX - left, h: (e.clientY - top) - rects.endPos.h }
+      };
+      updateRects(updates);
     }
     //TODO something better than ANY
   }
@@ -53,11 +99,20 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     return <image x="0" y="0" xlinkHref={src} />;
   }
 
-  const tool = 'NULL';
+  function changeToolFunc(tool: toolList) {
+    changeTool(tool);
+  }
+
+  function restoreImage() {
+    updateLine([]);
+    updateRects({});
+    changeTool('NULL');
+  }
+
+  const classes = useStyles();
 
   return (
-    <div style={{ display: 'flex', flexDirection: "column" }}>
-     
+    <Paper className={classes.root}>
       <svg
         width={XY[0]}
         height={XY[1]}
@@ -66,12 +121,24 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         }}
         onMouseMove={e => handleMouseMove(e)}
         onMouseUp={e => handleMouseUp(e)}
+        ref={svgRef}
       >
         {ImageSVG(src)}
+        {/*  genereateLines()  */}
+        {/*  generateBlackouts()  */}
+        {/*  generateArrows() */}
+        {rects && <Rect startPos={rects.startPos} endPos={rects.endPos} />}
         {lines && lines.length > 1 && <Path line={lines} />}
       </svg>
-      <Tool pen blackout arrow selectedTool={tool} />
-    </div>
+      <Tools
+        pen
+        blackout
+        arrow
+        selectedTool={selectedTool}
+        changeTool={changeToolFunc}
+        restoreImage={restoreImage}
+      />
+    </Paper>
   );
 };
 

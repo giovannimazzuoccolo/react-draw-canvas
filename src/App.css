@@ -1,12 +1,11 @@
-.hidden {
-  display:none;
+html, body {
+  width: 100%;
+  height: 100%;
 }
 
-.funcList {
-  list-style-type: none;
-}
-
-.funcList li {
-  float:left;
-  padding: 0px 10px 0px;
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #eee;
 }

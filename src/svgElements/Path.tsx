@@ -13,7 +13,7 @@ const Path: React.SFC<Props> = props => {
         return `${p.x} ${p.y}`;
       })
       .join(" L ");
-  return <path className="path" stroke="orange" stroke-width="6" fill="none" d={pathData}/>;
+  return <path className="path" stroke="orange" strokeWidth="6" fill="none" d={pathData}/>;
 };
 
 export default Path;
