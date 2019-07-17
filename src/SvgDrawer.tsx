@@ -61,7 +61,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
       if (selectedTool === "BLACKOUT" && !rects) {
         const updates = {
           startPos: { x: e.clientX - left, y: e.clientY - top },
-          endPos: { w: 0, h: e.clientY - top }
+          endPos: { w: 0, h: e.clientY - top },
+          isDragging: true
         };
         updateRects(updates);
       }
@@ -71,6 +72,9 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   function handleMouseUp(e: any) {
     if (isDrawing) {
       startDraw(false);
+      if(selectedTool === 'BLACKOUT') {
+        updateRects({ ...rects, isDragging : false })
+      }
     }
   }
 
@@ -93,7 +97,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         endPos: {
           w: e.clientX - left - rects.startPos.x,
           h: e.clientY - top - rects.startPos.y
-        }
+        },
+        isDragging: true
       };
       updateRects(updates);
     }
@@ -134,7 +139,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
       >
         {ImageSVG(src)}
         {arrows && <Arrow line={arrows} />}
-        {rects && <Rect startPos={rects.startPos} endPos={rects.endPos} />}
+        {rects && <Rect startPos={rects.startPos} endPos={rects.endPos} isDragging={rects.isDragging} />}
         {lines && lines.length > 1 && <Path line={lines} />}
       </svg>
       <Tools
