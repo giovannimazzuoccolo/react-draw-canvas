@@ -1,6 +1,7 @@
 import React, { ReactNode, useState, useEffect, useRef } from "react";
 import Path from "./svgElements/Path";
 import Rect from "./svgElements/Rect";
+import Arrow from "./svgElements/Arrow";
 import Tools from "./Tools";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles, createStyles } from "@material-ui/styles";
@@ -31,6 +32,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
 
   const [lines, updateLine] = useState<Array<Line>>([]);
   const [rects, updateRects] = useState();
+  const [arrows, updateArrows] = useState<Line>();
 
   const [selectedTool, changeTool] = useState<toolList>("NULL");
 
@@ -87,10 +89,17 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
 
     if (isDrawing && selectedTool === "BLACKOUT") {
       const updates = {
-        startPos: { x: rects.startPos.w, y: rects.startPos.y },
-        endPos: { w: e.clientX - left, h: (e.clientY - top) - rects.endPos.h }
+        startPos: { x: rects.startPos.x, y: rects.startPos.y },
+        endPos: {
+          w: e.clientX - left - rects.startPos.x,
+          h: e.clientY - top - rects.startPos.y
+        }
       };
       updateRects(updates);
+    }
+
+    if (isDrawing && selectedTool === 'ARROW') {
+      updateArrows({ x: e.clientX - left, y: e.clientY - top });
     }
     //TODO something better than ANY
   }
@@ -106,7 +115,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   function restoreImage() {
     updateLine([]);
     updateRects({});
-    changeTool('NULL');
+    changeTool("NULL");
   }
 
   const classes = useStyles();
@@ -124,9 +133,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         ref={svgRef}
       >
         {ImageSVG(src)}
-        {/*  genereateLines()  */}
-        {/*  generateBlackouts()  */}
-        {/*  generateArrows() */}
+        {arrows && <Arrow line={arrows} />}
         {rects && <Rect startPos={rects.startPos} endPos={rects.endPos} />}
         {lines && lines.length > 1 && <Path line={lines} />}
       </svg>
