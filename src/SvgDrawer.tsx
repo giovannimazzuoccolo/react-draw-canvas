@@ -13,7 +13,7 @@ interface Props {
   arrow?: boolean;
 }
 
-interface Line {
+interface Coord {
   x: number;
   y: number;
 }
@@ -26,17 +26,26 @@ const useStyles = makeStyles(() =>
   })
 );
 
+
+
+
 const SvgDrawer: React.FC<Props> = ({ src }) => {
+
   const [XY, updateDim] = useState([0, 0]);
   const [isDrawing, startDraw] = useState(false);
 
-  const [lines, updateLine] = useState<Array<Line>>([]);
+  const [paths, updatePaths] = useState<Array<Coord>>([]);
+  const [savedPaths, storePaths] = useState();
+
   const [rects, updateRects] = useState();
-  const [arrows, updateArrows] = useState<Line>();
+  const [arrows, updateArrows] = useState<Coord>();
 
   const [selectedTool, changeTool] = useState<toolList>("NULL");
 
   const svgRef = useRef<SVGSVGElement>(null);
+
+
+
 
   useEffect(() => {
     const Img = new Image();
@@ -75,6 +84,12 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
       if(selectedTool === 'BLACKOUT') {
         updateRects({ ...rects, isDragging : false })
       }
+      if(selectedTool === 'PEN') {
+        const finalizedPath = paths;
+
+        storePaths([finalizedPath]);
+        updatePaths([]);
+      }
     }
   }
 
@@ -88,7 +103,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     }
 
     if (isDrawing && selectedTool === "PEN") {
-      updateLine([...lines, { x: e.clientX - left, y: e.clientY - top }]);
+      updatePaths([...paths, { x: e.clientX - left, y: e.clientY - top }]);
     }
 
     if (isDrawing && selectedTool === "BLACKOUT") {
@@ -118,7 +133,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   }
 
   function restoreImage() {
-    updateLine([]);
+    updatePaths([]);
     updateRects({});
     changeTool("NULL");
   }
@@ -140,7 +155,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         {ImageSVG(src)}
         {arrows && <Arrow line={arrows} />}
         {rects && <Rect startPos={rects.startPos} endPos={rects.endPos} isDragging={rects.isDragging} />}
-        {lines && lines.length > 1 && <Path line={lines} />}
+        {paths && paths.length > 1 && <Path line={paths} />}
+        {savedPaths && savedPaths.map((path:Coord[], index:number) => <Path line={path} key={index} /> ) }
       </svg>
       <Tools
         pen
