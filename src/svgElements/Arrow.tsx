@@ -1,21 +1,43 @@
 import * as React from "react";
+import { TypedArrow } from "../types";
 
-interface Props {
-  line: { x: number; y: number };
+function calculateSlope(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number {
+  const at:number = Math.atan2((y1 - y2), (x1 - x2)) * 180 / Math.PI;
+
+  return at+180;
 }
 
-const Arrow: React.SFC<Props> = props => {
-  const pathData =
-   `M ${props.line.x} 0 l${props.line.y} 0 l `;
+const Arrow: React.SFC<TypedArrow> = props => {
   return (
-    <>
-      <g transform="rotate(30)">
-        <path d={`${pathData}-2 0 l-15 -5 m15 5 l-15 5`} />
-      </g>
-    </>
+    <g data-id={props.id}>
+      <path
+        fill="green"
+        stroke="none"
+        d="M0,-15L0,15L39,0"
+        transform={`translate(${props.endPos.w}, ${
+          props.endPos.h
+        }) rotate(${calculateSlope(
+          props.startPos.x,
+          props.startPos.y,
+          props.endPos.w,
+          props.endPos.h
+        ).toFixed(2)})`}
+      />
+      <line
+        x1={props.startPos.x}
+        y1={props.startPos.y}
+        x2={props.endPos.w}
+        y2={props.endPos.h}
+        strokeWidth="8"
+        stroke="green"
+      />
+    </g>
   );
 };
 
 export default Arrow;
-
-//M15 0 l70 0 l

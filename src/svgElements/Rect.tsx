@@ -1,14 +1,8 @@
 import * as React from "react";
 
-interface Props {
-  startPos: { x: number; y: number };
-  endPos: { w: number; h: number };
-  isDragging: false
-}
+import { TypedRect } from '../types';
 
-const Rect: React.SFC<Props> = props => { 
-
-  console.log(props);
+const Rect: React.SFC<TypedRect> = props => { 
 
   if (props.endPos) {
     return (
@@ -19,7 +13,7 @@ const Rect: React.SFC<Props> = props => {
         x={props.startPos.x}
         y={props.startPos.y}
         stroke="black"
-        fill={props.isDragging ? "rgba(11,11,11,0.7)" : "black"}
+        fill={props.isDragging ? "rgba(11,11,11,0.4)" : "black"}
         style={{ 'cursor' : 'pointer' }}
       />
     );
