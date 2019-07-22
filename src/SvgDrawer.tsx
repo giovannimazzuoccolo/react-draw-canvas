@@ -35,6 +35,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
 
   const [selectedTool, changeTool] = useState<ToolList>("NULL");
 
+  const [SVGselection, updateSVGselection] = useState();
+
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
@@ -70,7 +72,6 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
           startPos: { x: e.clientX - left, y: e.clientY - top },
           endPos: { w: e.clientX - left, h: e.clientY - top },
           isDragging: true,
-          inclination: 0
         };
         updateArrow(updates);
       }
@@ -145,7 +146,6 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
             h: e.clientY - top
           },
           isDragging: true,
-          inclination: 0
         };
         updateArrow(updates);
       }
@@ -168,6 +168,35 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     storePaths([]);
     storeArrows([]);
     changeTool("NULL");
+  }
+
+  function SVGdelete() {
+    const idToDelete = SVGselection.substr(5);
+    const drawType = SVGselection.substring(0, 4);
+    //TODO: export in one function
+    switch (drawType) {
+      case "arro": {
+        const newArrows = savedArrows;
+        delete newArrows[idToDelete];
+        updateSVGselection(null);
+        changeTool("NULL");
+        return storeArrows(newArrows);
+      }
+      case "rect": {
+        const newRect = savedRects;
+        delete newRect[idToDelete];
+        updateSVGselection(null);
+        changeTool("NULL");
+        return storeArrows(newRect);
+      }
+      case "path": {
+        const newPaths = savedPaths;
+        delete newPaths[idToDelete];
+        updateSVGselection(null);
+        changeTool("NULL");
+        return storePaths(newPaths);
+      }
+    }
   }
 
   const classes = useStyles();
@@ -200,12 +229,27 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               endPos={area.endPos}
               isDragging={false}
               key={index}
+              id={`rect_${index}`}
+              setSelection={(id: string) => {
+                changeTool('NULL');
+                updateSVGselection(id);
+              }}
+              selected={SVGselection === `rect_${index}`}
             />
           ))}
         {paths && paths.length > 0 && <Path line={paths} />}
         {savedPaths &&
           savedPaths.map((lines: Coord[], index: number) => (
-            <Path line={lines} key={index} />
+            <Path
+              line={lines}
+              key={index}
+              id={`path_${index}`}
+              setSelection={(id: string) => {
+                changeTool('NULL');
+                updateSVGselection(id);
+              }}
+              selected={SVGselection === `path_${index}`}
+            />
           ))}
         {arrow && (
           <Arrow
@@ -222,6 +266,12 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               endPos={coord.endPos}
               isDragging={false}
               key={index}
+              id={`arro_${index}`}
+              setSelection={(id: string) => {
+                changeTool('NULL');
+                updateSVGselection(id);
+              }}
+              selected={SVGselection === `arro_${index}`}
             />
           ))}
       </svg>
@@ -229,6 +279,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         pen
         blackout
         arrow
+        deleteSVG={SVGselection}
+        confirmationDelete={SVGdelete}
         selectedTool={selectedTool}
         changeTool={changeToolFunc}
         restoreImage={restoreImage}

@@ -7,14 +7,17 @@ function calculateSlope(
   x2: number,
   y2: number
 ): number {
-  const at:number = Math.atan2((y1 - y2), (x1 - x2)) * 180 / Math.PI;
+  const at: number = (Math.atan2(y1 - y2, x1 - x2) * 180) / Math.PI;
 
-  return at+180;
+  return at + 180;
 }
 
 const Arrow: React.SFC<TypedArrow> = props => {
   return (
-    <g data-id={props.id}>
+    <g
+      data-id={props.id}
+      onClick={() => props.setSelection && props.setSelection(props.id)}
+    >
       <path
         fill="green"
         stroke="none"
@@ -34,7 +37,7 @@ const Arrow: React.SFC<TypedArrow> = props => {
         x2={props.endPos.w}
         y2={props.endPos.h}
         strokeWidth="8"
-        stroke="green"
+        stroke={props.selected ? 'darkgreen' : 'green'}
       />
     </g>
   );

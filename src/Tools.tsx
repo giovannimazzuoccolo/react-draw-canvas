@@ -5,50 +5,56 @@ import {
   faSquare,
   faLongArrowAltUp,
   faUndo,
-  faSave
+  faSave,
+  faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import Button from "@material-ui/core/Button";
-import ButtonGroup from '@material-ui/core/ButtonGroup';
+import ButtonGroup from "@material-ui/core/ButtonGroup";
 
-import { makeStyles, createStyles } from '@material-ui/styles';
+import { makeStyles, createStyles } from "@material-ui/styles";
 
+library.add(faPen, faSquare, faLongArrowAltUp, faUndo, faSave, faTimes);
 
-library.add(faPen, faSquare, faLongArrowAltUp, faUndo, faSave);
-
-
-const useStyles = makeStyles(() => createStyles({
-  root:{ display: "inline-flex", justifyContent: "space-between" },
-  buttons: {
-    height: '48px',
-    lineHeight: '38px',
-    color: '#666',
-    borderRadius: 0,
-    borderBottom: 'none'
-  },
-  buttonColor: {
-    color: '#666'
-  }
-}));
+const useStyles = makeStyles(() =>
+  createStyles({
+    root: { display: "inline-flex", justifyContent: "space-between" },
+    buttons: {
+      height: "48px",
+      lineHeight: "38px",
+      color: "#666",
+      borderRadius: 0,
+      borderBottom: "none"
+    },
+    buttonColor: {
+      color: "#666"
+    }
+  })
+);
 
 interface Props {
   pen?: boolean;
   blackout?: boolean;
   arrow?: boolean;
+  deleteSVG?: string;
   selectedTool: string;
   changeTool: Function;
-  restoreImage: Function
+  restoreImage: Function;
+  confirmationDelete: Function;
 }
 
 const Tools: React.FC<Props> = props => {
-
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
-      <ToggleButtonGroup value={props.selectedTool} exclusive onChange={(e, tool) => props.changeTool(tool)}>
+      <ToggleButtonGroup
+        value={props.selectedTool}
+        exclusive
+        onChange={(e, tool) => props.changeTool(tool)}
+      >
         {props.pen && (
           <ToggleButton value="PEN" className={classes.buttonColor}>
             <FontAwesomeIcon icon={faPen} /> &nbsp; Pen
@@ -66,7 +72,18 @@ const Tools: React.FC<Props> = props => {
         )}
       </ToggleButtonGroup>
       <ButtonGroup>
-        <Button className={classes.buttons} onClick={() => props.restoreImage()}>
+        {props.deleteSVG && (
+          <Button
+            className={classes.buttons}
+            onClick={() => props.confirmationDelete()}
+          >
+            <FontAwesomeIcon icon={faTimes} /> &nbsp; Delete
+          </Button>
+        )}
+        <Button
+          className={classes.buttons}
+          onClick={() => props.restoreImage()}
+        >
           <FontAwesomeIcon icon={faUndo} /> &nbsp; Restore image
         </Button>
         <Button className={classes.buttons}>
