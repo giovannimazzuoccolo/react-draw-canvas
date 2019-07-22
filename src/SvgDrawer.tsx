@@ -251,6 +251,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               selected={SVGselection === `path_${index}`}
             />
           ))}
+        {/*FIXME: why arrows everywhere? */}  
         {arrow && (
           <Arrow
             startPos={arrow.startPos}
