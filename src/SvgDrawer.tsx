@@ -16,7 +16,7 @@ interface Props {
 
 const useStyles = makeStyles(() =>
   createStyles({
-    root: { display: "flex", flexDirection: "column" }
+    root: { display: "flex", flexDirection: "column", marginBottom: "48px", height:"98vh" }
   })
 );
 
@@ -34,7 +34,6 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   const [savedArrows, storeArrows] = useState<Array<TypedArrow>>([]);
 
   const [selectedTool, changeTool] = useState<ToolList>("NULL");
-
   const [SVGselection, updateSVGselection] = useState();
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -42,6 +41,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   useEffect(() => {
     const Img = new Image();
     Img.onload = () => {
+      //updateDim([Img.naturalWidth, Img.naturalHeight]);
       updateDim([Img.naturalWidth, Img.naturalHeight]);
     };
     Img.src = src;
@@ -51,8 +51,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     let left = 0;
     let top = 0;
 
-    let clientX = from === 'TOUCH' ?  e.touches[0].clientX : e.clientX;
-    let clientY = from === 'TOUCH' ?  e.touches[0].clientY : e.clientY;
+    let clientX = from === "TOUCH" ? e.touches[0].clientX : e.clientX;
+    let clientY = from === "TOUCH" ? e.touches[0].clientY : e.clientY;
 
     if (svgRef.current !== null) {
       left = svgRef.current.getBoundingClientRect().left;
@@ -114,53 +114,53 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   }
 
   function handleMove(e: any, from: "MOUSE" | "TOUCH") {
+    if (!isDrawing) return null;
+
     let left = 0;
     let top = 0;
 
-    let clientX = from === 'TOUCH' ?  e.touches[0].clientX : e.clientX;
-    let clientY = from === 'TOUCH' ?  e.touches[0].clientY : e.clientY;
-
+    let clientX = from === "TOUCH" ? e.touches[0].clientX : e.clientX;
+    let clientY = from === "TOUCH" ? e.touches[0].clientY : e.clientY;
 
     if (svgRef.current !== null) {
       left = svgRef.current.getBoundingClientRect().left;
       top = svgRef.current.getBoundingClientRect().top;
     }
 
-    if (isDrawing && selectedTool === "PEN") {
-      updatePaths([...paths, { x: clientX - left, y: clientY - top }]);
-    }
-
-    if (isDrawing && selectedTool === "BLACKOUT") {
-      if (rect) {
-        const updates = {
-          startPos: { x: rect.startPos.x, y: rect.startPos.y },
-          endPos: {
-            w: clientX - left - rect.startPos.x,
-            h: clientY - top - rect.startPos.y
-          },
-          isDragging: true
-        };
-        updateRect(updates);
-      }
-    }
-
-    if (isDrawing && selectedTool === "ARROW") {
-      if (arrow) {
-        const updates = {
-          startPos: { x: arrow.startPos.x, y: arrow.startPos.y },
-          endPos: {
-            w: clientX - left,
-            h: clientY - top
-          },
-          isDragging: true
-        };
-        updateArrow(updates);
-      }
+    switch (selectedTool) {
+      case "PEN":
+        return updatePaths([...paths, { x: clientX - left, y: clientY - top }]);
+      case "BLACKOUT":
+        if (rect) {
+          const updates = {
+            startPos: { x: rect.startPos.x, y: rect.startPos.y },
+            endPos: {
+              w: clientX - left - rect.startPos.x,
+              h: clientY - top - rect.startPos.y
+            },
+            isDragging: true
+          };
+          return updateRect(updates);
+        }
+        break;
+      case "ARROW":
+        if (arrow) {
+          const updates = {
+            startPos: { x: arrow.startPos.x, y: arrow.startPos.y },
+            endPos: {
+              w: clientX - left,
+              h: clientY - top
+            },
+            isDragging: true
+          };
+          updateArrow(updates);
+        }
+        break;
     }
   }
 
   function ImageSVG(src: string): ReactNode {
-    return <image x="0" y="0" xlinkHref={src} />;
+    return <image x="0" y="0" xlinkHref={src} width="100%" height="100%" /*height={XY[1]}*/ />;
   }
 
   function changeToolFunc(tool: ToolList) {
@@ -180,29 +180,34 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   function SVGdelete() {
     const idToDelete = SVGselection.substr(5);
     const drawType = SVGselection.substring(0, 4);
+    changeTool("NULL");
+
     //TODO: export in one function
     switch (drawType) {
-      case "arro": {
-        const newArrows = savedArrows;
-        delete newArrows[idToDelete];
-        updateSVGselection(null);
-        changeTool("NULL");
-        return storeArrows(newArrows);
-      }
-      case "rect": {
-        const newRect = savedRects;
-        delete newRect[idToDelete];
-        updateSVGselection(null);
-        changeTool("NULL");
-        return storeArrows(newRect);
-      }
-      case "path": {
-        const newPaths = savedPaths;
-        delete newPaths[idToDelete];
-        updateSVGselection(null);
-        changeTool("NULL");
-        return storePaths(newPaths);
-      }
+      case "arro":
+        {
+          const newArrows = savedArrows;
+          delete newArrows[idToDelete];
+          updateSVGselection(null);
+          storeArrows(newArrows);
+        }
+        break;
+      case "rect":
+        {
+          const newRect = savedRects;
+          delete newRect[idToDelete];
+          updateSVGselection(null);
+          storeRects(newRect);
+        }
+        break;
+      case "path":
+        {
+          const newPaths = savedPaths;
+          delete newPaths[idToDelete];
+          updateSVGselection(null);
+          storePaths(newPaths);
+        }
+        break;
     }
   }
 
@@ -211,8 +216,10 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
   return (
     <Paper className={classes.root}>
       <svg
-        width={XY[0]}
-        height={XY[1]}
+        //width={XY[0]}
+        width="100%"
+        height="100%"
+        //height="100%"
         onMouseDown={e => {
           handleDown(e, "MOUSE");
         }}
@@ -261,7 +268,6 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               selected={SVGselection === `path_${index}`}
             />
           ))}
-        {/*FIXME: why arrows everywhere? */}
         {arrow && (
           <Arrow
             startPos={arrow.startPos}

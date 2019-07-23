@@ -20,7 +20,14 @@ library.add(faPen, faSquare, faLongArrowAltUp, faUndo, faSave, faTimes);
 
 const useStyles = makeStyles(() =>
   createStyles({
-    root: { display: "inline-flex", justifyContent: "space-between" },
+    root: {
+      position: "absolute",
+      bottom: 0,
+      display: "inline-flex",
+      justifyContent: "space-between",
+      backgroundColor: "#fff",
+      left: 0
+    },
     buttons: {
       height: "48px",
       lineHeight: "38px",
@@ -57,17 +64,17 @@ const Tools: React.FC<Props> = props => {
       >
         {props.pen && (
           <ToggleButton value="PEN" className={classes.buttonColor}>
-            <FontAwesomeIcon icon={faPen} /> &nbsp; Pen
+            <FontAwesomeIcon icon={faPen} /> { /*&nbsp; Pen */}
           </ToggleButton>
         )}
         {props.blackout && (
           <ToggleButton value="BLACKOUT" className={classes.buttonColor}>
-            <FontAwesomeIcon icon={faSquare} /> &nbsp; Blackout
+            <FontAwesomeIcon icon={faSquare} /> { /*&nbsp; Blackout */}
           </ToggleButton>
         )}
         {props.arrow && (
           <ToggleButton value="ARROW" className={classes.buttonColor}>
-            <FontAwesomeIcon icon={faLongArrowAltUp} /> &nbsp; Arrow
+            <FontAwesomeIcon icon={faLongArrowAltUp} /> { /*&nbsp; Arrow */}
           </ToggleButton>
         )}
       </ToggleButtonGroup>
@@ -77,17 +84,17 @@ const Tools: React.FC<Props> = props => {
             className={classes.buttons}
             onClick={() => props.confirmationDelete()}
           >
-            <FontAwesomeIcon icon={faTimes} /> &nbsp; Delete
+            <FontAwesomeIcon icon={faTimes} /> { /*&nbsp; Delete */}
           </Button>
         )}
         <Button
           className={classes.buttons}
           onClick={() => props.restoreImage()}
         >
-          <FontAwesomeIcon icon={faUndo} /> &nbsp; Restore image
+          <FontAwesomeIcon icon={faUndo} /> { /*&nbsp; Restore image*/ }
         </Button>
         <Button className={classes.buttons}>
-          <FontAwesomeIcon icon={faSave} /> &nbsp; Save
+          <FontAwesomeIcon icon={faSave} /> { /*&nbsp; Save */}
         </Button>
       </ButtonGroup>
     </div>
