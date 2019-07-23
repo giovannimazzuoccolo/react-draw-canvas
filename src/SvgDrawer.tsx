@@ -124,7 +124,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
 
     if (svgRef.current !== null) {
       left = svgRef.current.getBoundingClientRect().left;
-      top = svgRef.current.getBoundingClientRect().top;
+      top = svgRef.current.getBoundingClientRect().top-10;
     }
 
     switch (selectedTool) {
