@@ -47,9 +47,12 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     Img.src = src;
   }, [src]);
 
-  function handleMouseDown(e: any) {
+  function handleDown(e: any, from: "MOUSE" | "TOUCH") {
     let left = 0;
     let top = 0;
+
+    let clientX = from === 'TOUCH' ?  e.touches[0].clientX : e.clientX;
+    let clientY = from === 'TOUCH' ?  e.touches[0].clientY : e.clientY;
 
     if (svgRef.current !== null) {
       left = svgRef.current.getBoundingClientRect().left;
@@ -61,24 +64,24 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
       startDraw(true);
       if (selectedTool === "BLACKOUT" && !rect) {
         const updates = {
-          startPos: { x: e.clientX - left, y: e.clientY - top },
-          endPos: { w: 0, h: e.clientY - top },
+          startPos: { x: clientX - left, y: clientY - top },
+          endPos: { w: 0, h: clientY - top },
           isDragging: true
         };
         updateRect(updates);
       }
       if (selectedTool === "ARROW" && !arrow) {
         const updates = {
-          startPos: { x: e.clientX - left, y: e.clientY - top },
-          endPos: { w: e.clientX - left, h: e.clientY - top },
-          isDragging: true,
+          startPos: { x: clientX - left, y: clientY - top },
+          endPos: { w: clientX - left, h: clientY - top },
+          isDragging: true
         };
         updateArrow(updates);
       }
     }
   }
 
-  function handleMouseUp(e: any) {
+  function handleUp(e: any, from: "MOUSE" | "TOUCH") {
     if (isDrawing) {
       startDraw(false);
       if (selectedTool === "BLACKOUT") {
@@ -110,9 +113,13 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     }
   }
 
-  function handleMouseMove(e: any) {
+  function handleMove(e: any, from: "MOUSE" | "TOUCH") {
     let left = 0;
     let top = 0;
+
+    let clientX = from === 'TOUCH' ?  e.touches[0].clientX : e.clientX;
+    let clientY = from === 'TOUCH' ?  e.touches[0].clientY : e.clientY;
+
 
     if (svgRef.current !== null) {
       left = svgRef.current.getBoundingClientRect().left;
@@ -120,7 +127,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
     }
 
     if (isDrawing && selectedTool === "PEN") {
-      updatePaths([...paths, { x: e.clientX - left, y: e.clientY - top }]);
+      updatePaths([...paths, { x: clientX - left, y: clientY - top }]);
     }
 
     if (isDrawing && selectedTool === "BLACKOUT") {
@@ -128,8 +135,8 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         const updates = {
           startPos: { x: rect.startPos.x, y: rect.startPos.y },
           endPos: {
-            w: e.clientX - left - rect.startPos.x,
-            h: e.clientY - top - rect.startPos.y
+            w: clientX - left - rect.startPos.x,
+            h: clientY - top - rect.startPos.y
           },
           isDragging: true
         };
@@ -142,10 +149,10 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         const updates = {
           startPos: { x: arrow.startPos.x, y: arrow.startPos.y },
           endPos: {
-            w: e.clientX - left,
-            h: e.clientY - top
+            w: clientX - left,
+            h: clientY - top
           },
-          isDragging: true,
+          isDragging: true
         };
         updateArrow(updates);
       }
@@ -207,10 +214,13 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
         width={XY[0]}
         height={XY[1]}
         onMouseDown={e => {
-          handleMouseDown(e);
+          handleDown(e, "MOUSE");
         }}
-        onMouseMove={e => handleMouseMove(e)}
-        onMouseUp={e => handleMouseUp(e)}
+        onMouseMove={e => handleMove(e, "MOUSE")}
+        onMouseUp={e => handleUp(e, "MOUSE")}
+        onTouchStart={e => handleDown(e, "TOUCH")}
+        onTouchEnd={e => handleUp(e, "TOUCH")}
+        onTouchMove={e => handleMove(e, "TOUCH")}
         ref={svgRef}
       >
         {ImageSVG(src)}
@@ -231,7 +241,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               key={index}
               id={`rect_${index}`}
               setSelection={(id: string) => {
-                changeTool('NULL');
+                changeTool("NULL");
                 updateSVGselection(id);
               }}
               selected={SVGselection === `rect_${index}`}
@@ -245,13 +255,13 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               key={index}
               id={`path_${index}`}
               setSelection={(id: string) => {
-                changeTool('NULL');
+                changeTool("NULL");
                 updateSVGselection(id);
               }}
               selected={SVGselection === `path_${index}`}
             />
           ))}
-        {/*FIXME: why arrows everywhere? */}  
+        {/*FIXME: why arrows everywhere? */}
         {arrow && (
           <Arrow
             startPos={arrow.startPos}
@@ -269,7 +279,7 @@ const SvgDrawer: React.FC<Props> = ({ src }) => {
               key={index}
               id={`arro_${index}`}
               setSelection={(id: string) => {
-                changeTool('NULL');
+                changeTool("NULL");
                 updateSVGselection(id);
               }}
               selected={SVGselection === `arro_${index}`}
